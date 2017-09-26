@@ -88,12 +88,13 @@ Several functional methods have been proposed in the literature to explain machi
 Given the flexible nature of recurrent neural networks, we will change the output layer from ratings to users' gender and adapt the system from step \ref{step:rating-prediction} into a system that predicts users' gender from review text. Since predicting gender is likely to require more text from each user, we will select the users that have written most reviews and aggregate them to see if the system can correctly predict their gender. If so, we will find out what amount of text is needed to correctly identify the gender.
 
 \subsection{Explaining the user gender prediction and addressing the privacy concern}
+\label{step:gender-prediction-explanation}
 
 If step \ref{step:gender-prediction} is successful, we will try to explain the system in the same fashion as in step \ref{step:rating-prediction-explanation}, but with user gender as output. Also, we will try to address this privacy concern by adding a noise to the review or limiting the number of words for the review text and see if that would make a difference in prediction accuracy. 
 
 \section{Deliverables}
 
-The main goal for our project to to build an interactive system such that given a particular review, or group of reviews, or the gender of a user, the system can explain why the deep learning algorithm gives such a prediction. We will provide a color code on the words in a review according to their importance in prediction. We will implement such a system for both rating prediction and gender prediction. We will complete section 2.1 and 2.2 in the approach section for deliverable I, section 2.3 and 2.4 for deliverable II. 
+The main goal for our project is to build an interactive system such that given a particular review, or group of reviews, or the gender of a user, the system can explain why the deep learning algorithm gives such a prediction. We will provide a color code on the words in a review according to their importance in prediction. We will implement such a system for both rating prediction and gender prediction. We will complete steps \ref{step:rating-prediction} and \ref{step:rating-prediction-explanation} in the Approach section above for deliverable I, and steps \ref{step:gender-prediction} and \ref{step:gender-prediction-explanation} for deliverable II. 
 
 \section{Timeline}
 
