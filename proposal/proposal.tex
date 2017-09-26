@@ -75,7 +75,7 @@ We are also planning to investigate if the gender of a user can be predicted bas
 \subsection{Processing the data and setting up the deep learning system}
 \label{step:rating-prediction}
 
-The first step is to set up the recurrent neural network infrastructure \cite{Tang2015} that predicts the ratings from the review text data. We will be reviewing the literature to learn about state-of-the-art deep learning systems that have been used to perform sentiment analysis as well as the prediction tasks that have been accomplished with the Yelp dataset. We will implement these systems and pick the one which gives the best prediction results.
+The first step is to set up the recurrent neural network infrastructure \cite{Tang2015} that predicts the ratings from the review text data. We will be reviewing the literature to learn about state-of-the-art deep learning systems that have been used to perform sentiment analysis as well as the prediction tasks that have been accomplished with the Yelp dataset. We will implement these systems and pick the one which gives the best prediction results. Our prediction will be based on either a binary classification problem (which we aggregate the 5-star ratings into 2 groups: positive and negative), or a 5-class classification problem(which we use the 5-star ratings output as it is). 
 
 \subsection{Explaining the deep learning system using functional methods}
 \label{step:rating-prediction-explanation}
@@ -93,7 +93,7 @@ If step \ref{step:gender-prediction} is successful, we will try to explain the s
 
 \section{Deliverables}
 
-We will demo an interactive system so that given a particular review, or group of reviews, the system can explain why the deep learning algorithm gives such a prediction. We will provide a color code on the words in a review according to their importance. We will implement such a system for both rating prediction and review prediction. 
+The main goal for our project to to build an interactive system such that given a particular review, or group of reviews, or the gender of a user, the system can explain why the deep learning algorithm gives such a prediction. We will provide a color code on the words in a review according to their importance in prediction. We will implement such a system for both rating prediction and gender prediction. We will complete section 2.1 and 2.2 in the approach section for deliverable I, section 2.3 and 2.4 for deliverable II. 
 
 \section{Timeline}
 
