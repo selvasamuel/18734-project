@@ -38,14 +38,12 @@ class integrated_gradients:
         
         #load input tensors
         self.input_tensors = []
-        for i in self.model.inputs:
-            self.input_tensors.append(i)
+        self.input_tensors.append(self.model.layers[1].output)
         # The learning phase flag is a bool tensor (0 = test, 1 = train)
         # to be passed as input to any Keras function that uses 
         # a different behavior at train time and test time.
         self.input_tensors.append(K.learning_phase())
         print(np.shape(self.input_tensors))
-        print ('Hahahahahahah')
         #If outputchanel is specified, use it.
         #Otherwise evalueate all outputs.
         self.outchannels = outchannels
@@ -69,10 +67,10 @@ class integrated_gradients:
         for c in self.outchannels:
             # Get tensor that calcuates gradient
             if K.backend() == "tensorflow":
-                gradients = self.model.optimizer.get_gradients(self.model.output[:, c], self.model.input)
+                gradients = self.model.optimizer.get_gradients(self.model.output[:, c], self.model.layers[1].output)
             if K.backend() == "theano":
-                gradients = self.model.optimizer.get_gradients(self.model.output[:, c].sum(), self.model.input)
-                
+                gradients = self.model.optimizer.get_gradients(self.model.output[:, c].sum(), self.model.layers[1].output)
+            print(self.input_tensors,gradients)    
             # Build computational graph that calculates the tensfor given inputs
             self.get_gradients[c] = K.function(inputs=self.input_tensors, outputs=gradients)
             
@@ -116,10 +114,17 @@ class integrated_gradients:
         
         # Or you can feed just a single numpy arrray. 
         elif isinstance(sample, np.ndarray):
-            _output = integrated_gradients.linearly_interpolate(sample, reference, num_steps)
-            samples.append(_output[0])
-            numsteps.append(_output[1])
-            step_sizes.append(_output[2])
+            print('Haha')
+            if reference != False: 
+                assert len(sample) == len(reference)
+            for i in range(len(sample)):
+                if reference == False:
+                    _output = integrated_gradients.linearly_interpolate(sample[i], False, num_steps)
+                else:
+                    _output = integrated_gradients.linearly_interpolate(sample[i], False, num_steps)
+                samples.append(_output[0])
+                numsteps.append(_output[1])
+                step_sizes.append(_output[2])
             
         # Desired channel must be in the list of outputchannels
         assert outc in self.outchannels
@@ -135,9 +140,9 @@ class integrated_gradients:
             gradients = self.get_gradients[outc](_input)
         elif K.backend() == "theano":
             gradients = self.get_gradients[outc](_input)
-            if len(self.model.inputs) == 1:
+            if len(self.model.layers[1].output) == 1:
                 gradients = [gradients]
-        
+        print(gradients[0].shape)
         explanation = []
         for i in range(len(gradients)):
             _temp = np.sum(gradients[i], axis=0)
@@ -147,7 +152,7 @@ class integrated_gradients:
         if isinstance(sample, list):
             return explanation
         elif isinstance(sample, np.ndarray):
-            return explanation[0]
+            return explanation
         return -1
 
     
