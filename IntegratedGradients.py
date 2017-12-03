@@ -168,7 +168,7 @@ class integrated_gradients:
         # Use default reference values if reference is not specified
         if reference is False: reference = np.zeros(sample.shape);
 
-        # Reference and sample shape needs to match exactly
+        # Reference and  mple shape needs to match exactly
         assert sample.shape == reference.shape
 
         # Calcuated stepwise difference from reference to the actual sample.
