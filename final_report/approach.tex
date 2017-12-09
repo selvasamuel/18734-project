@@ -1,0 +1,70 @@
+\section{Approach}
+
+\subsection{Sentiment Analysis}
+
+We trained a recurrent neural network on the Yelp review dataset to predict the ratings given by the users. We trained a binary classifier to categorize the reviews as positive or negative. If a review has a rating less than three stars, then we treat it as positive. Otherwise, we treat it as negative.
+
+\subsubsection{Network Architecture}
+
+The architecture of the deep neural network that we used is shown in figure \ref{fig:dnn-arch}. It consists of the following layers:
+\\ \\
+\textbf{(a) Embedding Layer.} We used an embedding layer whose input dimension was 20,000 and output dimension was 128. These values of the input and output dimensions are commonly used for embedding layers (see, for example, \cite{Lu2017}). We used the dropout technique \cite{ZarembaSV2014} to randomly zero 20\% of signals in the embedding layer.
+\\ \\
+\textbf{(b) Convolutional Layer.} We used a 1-dimensional convolutional layer with 64 filters. We used a 1-dimensional convolution window of length 5 and a stride of 1. We used the Rectified Linear Unit (ReLU) activation function for the convolutional layer.
+\\ \\
+\textbf{(c) Max Pooling Layer.} We used a max pooling layer with a pool size of 4 and a stride of 1.
+\\ \\
+\textbf{(d) LSTM Layer.} We used a long short-term memory (LSTM) layer with 128 units. We used the dropout technique \cite{ZarembaSV2014} to randomly zero 20\% of the rows in the weight matrices in the LSTM layer.
+\\ \\
+\textbf{(e) Sigmoid Activation Layer.} We used an activation layer that applies the sigmoid function to the outputs of the LSTM layer.
+\\ \\
+\textbf{(f) Loss Function.} We used the binary cross entropy loss function to generate prediction scores. In the sentiment analysis task, if the prediction score is less than 0.5, then the review text is classified as being negative. Otherwise, the review text is considered to be positive.
+
+\subsubsection{Input Encoding}
+
+The reviews are encoded as a sequence of word indices based on the overall frequency in the dataset. We set the maximum sequence sequence length to 300 among the top 20,000 most common words. Longer sequences were truncated while shorter ones were zero-padded.
+
+\begin{figure*}[t]
+	\includegraphics[width=\textwidth]{figure1}
+	\caption{Architecture of deep neural network used for prediction tasks in the Yelp dataset}
+	\label{fig:dnn-arch}
+\end{figure*}
+
+\subsection{Gender Prediction}
+\label{subsection:gp}
+
+We trained another recurrent neural network on the Yelp review dataset to predict the gender of the authors of the reviews and generated explanations for the predictions made by the network. For gender prediction, we used the same network architecture and input encoding as that for sentiment analysis. For the loss function, we deem the prediction to be female if the score is larger than 0.5, and male otherwise. 
+
+\subsubsection{Ground Truth}
+
+The Yelp dataset includes only the first names of the users who have written reviews and does not include their gender. So, we used the gender guesser tool \cite{GenderGuesser2017} to determine the gender of the review authors from their first names. When a first name is given as input to the gender guesser tool, the result is one of \texttt{male}, \texttt{female}, \texttt{mostly\char`_male}, \texttt{mostly\char`_female}, \texttt{andy} (the probability of being male is the same as the probability of being female) or \texttt{unknown} (the name was not found in the database used by the tool). We used only the reviews written by users for whom the gender guesser tool returned \texttt{male} or \texttt{female} (i.e., the tool was 100\% certain about the gender returned) for training our neural network.
+
+\subsubsection{Single Reviews}
+
+We trained two networks for gender prediction. In the first network, we used individual reviews for training our network.
+
+\subsubsection{Combined Reviews}
+
+Since single reviews are not very long, we also combined together all the reviews of a specific user in the dataset and used the combined reviews to train our network.
+
+\subsection{Explanation Generation}
+
+We used two methods to explain the predictions from our trained neural network - integrated gradients and masking. We explain both of these approaches in the following subsections.
+
+\subsubsection{Integrated Gradients}
+
+In order to generate explanations using integrated gradients, we adapted the method introduced by Sundararajan et al. \cite{Sundararajan2017}. In neural networks, gradients (of the output with respect to the input) can be used to explain the behavior of prediction tasks. However, gradients suffer from the weakness that if the prediction function flattens at the input, then the gradient would become zero. This causes a failure to highlight input features that are relevant to producing the observed output (see \cite{ShrikumarGK17} for details). Integrated gradients overcome this limitation of the gradient-based approach and provide a better way for generating explanations.
+
+Suppose that $F: \mathbb{R}^n \to [0, 1]$ is a function that represents a deep neural network. Let $x \in \mathbb{R}^n$ be the input at hand and let $x' \in \mathbb{R}^n$ be the baseline input. For image networks, the baseline could be the black image, while for text models it could be the zero embedding vector. Then, the integrated gradient along the $i^{th}$ dimension for an input $x$ and baseline $x'$ can be calculated by using the following formula:
+\begin{IEEEeqnarray*}{l}
+    \mathsf{IntegratedGrads}_i(x) ::= \\
+    \qquad (x_i - x_i') \times \int_0^1 \frac{\partial F(x' + \alpha \times (x - x'))}{\partial x_i} d\alpha
+\end{IEEEeqnarray*}
+
+Here, $\frac{\partial F(x)}{\partial x_i}$ is the gradient of $F(x)$ along the $i^{th}$ dimension. Thus, to compute integrated gradients, we consider the straightline path (in $\mathbb{R}^n$) from the baseline $x'$ to the input $x$, and compute the gradients at all points along the path. Integrated gradients are obtained by cumulating these gradients. In other words, integrated gradients are the path integral of the gradients along the straightline path from the baseline $x'$ to the input $x$.
+
+As demonstrated in \cite{Sundararajan2017}, the integrated gradient metric performs well on a variety of classification tasks for images as well as text input.
+
+\subsubsection{1-gram Masking}
+
+The second method that we used to generate explanations of predictions made by our trained neural network is 1-gram masking. In natural language processing, an n-gram refers to a contiguous sequence of n words in a piece of text. So, 1-gram is just a single word. In 1-gram masking, the importance of a word in making a correct prediction is determined by the magnitude of the change in the prediction score when all occurrences of the word are removed from the text. The larger the change in the prediction score, the greater is its influence on making the correct prediction.

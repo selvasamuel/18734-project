@@ -1,5 +1,6 @@
 \documentclass[11pt, twocolumn]{article}
 \usepackage[left=1in, right=1in, top=1in, bottom=1in, includefoot]{geometry}		% Set margins to 1 inch.
+\usepackage[utf8]{inputenc}
 
 % Reduce the vertical space above the title.
 \usepackage{titling}
@@ -14,6 +15,7 @@
 \usepackage{amsfonts}				% For \mathbb{}
 
 \usepackage{graphicx}
+\usepackage[labelformat=simple]{subcaption}             % For the subfigure environment
 \usepackage{floatrow}
 
 \usepackage{nccmath}				% For fleqn environment
@@ -30,12 +32,15 @@
 \usepackage{titlesec}				% For making the text of a section start on the same line as the section's title
 \usepackage{url}					% For \url{}
 \usepackage{hyperref}				% For breaking URLs
-\def\UrlBreaks{\do\/\do-}				% For breaking URLs at '/' and '-'
+%\def\UrlBreaks{\do\/\do-}				% For breaking URLs at '/' and '-'
 \usepackage{cleveref}				% When using hyperref, cleverref must be loaded after hyperref has been loaded.
 \usepackage[T1]{fontenc}				% For fixing underscores in \url{}
 
 % https://tex.stackexchange.com/questions/51682/is-it-possible-to-pagebreak-aligned-equations
+\usepackage{IEEEtrantools}
 \allowdisplaybreaks					% For allowing page breaks in aligned equations
+
+\renewcommand\thesubfigure{(\alph{subfigure})}		% For adding parentheses around subfigure references (Figure 2(a) instead of Figure 2a)
 
 \newcommand{\colvect}[2]{
 	\ensuremath{\big[\begin{smallmatrix}#1\\#2\end{smallmatrix}\big]}
@@ -50,61 +55,47 @@
 \title{Explaining Predictions of Deep Neural Networks \\ on the Yelp Dataset}
 \author{
 	Caleb Kaiji Lu \\
-	{\tt caleb.lu@andrew.cmu.edu}
+	{\tt caleb.lu@sv.cmu.edu}
 	\and
 	Selva Samuel \\
 	{\tt ssamuel@andrew.cmu.edu}
 }
 \date{}
 
+%\hypersetup{draft}
 \begin{document}
 
 \maketitle
 
-\section{Introduction}
+\input{intro}
 
-\subsection{Motivation}
+\input{problem}
 
-In recent years, deep neural networks have been proposed to improve the effectiveness of neural networks in various machine learning tasks such as image classification, natural language processing, speech recognition, etc. However, the models learnt by deep learning systems tend to be very complex and are not easily understandable by humans. This can be problematic when deep neural networks are used to make decisions that have a societal impact such as hiring, credit decisions, prison sentencing, etc. In such applications, it is necessary to check that the decision was made in a fair manner. For example, if an algorithm decides that a job offer should not be made then this decision should have been based on the basis of the candidate's lack of required skill and not on the basis of their gender or ethnicity.
+\input{related_work}
 
-\subsection{Problem Statement}
+\input{approach}
 
-In this project, we are planning to generate explanations for predictions made by a recurrent neural network that has been trained on the Yelp dataset \cite{Yelp2017}.
+\input{results}
 
-\subsubsection{Explaining ratings prediction made on the basis of review text}
+\input{conclusion}
 
-Yelp reviews are utilized by users to make decisions about which service provider (restaurants, doctors, etc.) to use for their needs. In making these decisions, users need to understand what aspects of the service provided is reflected in a reviewer's overall rating. For example, if a user is interested in a restaurant which has low ratings, they might need to understand if the low rating is because of bad food or some other aspect (such as ambience, etc.) which they do not care about. So, it is essential to enumerate the factors that contributed to a given reviewer's rating.
+\section{Project URL}
 
-\subsubsection{Explaining gender prediction made on the basis of review text}
+The source code of our project is hosted on GitHub at \url{https://github.com/selvasamuel/18734-project}.
 
-We are also planning to investigate if the gender of a user can be predicted based on the reviews they have written. If we are able to do that, it would again be important to understand which factors of the review text contributed toward making an accurate prediction. This would provide an understanding of what needs to be done in case a user wants to provide an anonymous review.
+\input{work_distribution}
 
-\section{Approach}
+\nocite{Lu2017}
+\nocite{Sundararajan2017}
+\nocite{ZarembaSV2014}
+\nocite{Burger2011}
+\nocite{Datta2017}
+\nocite{Mukherjee2010}
+\nocite{Ribeiro2016}
+\nocite{Tang2015}
+\nocite{Yelp2017}
 
-\subsection{Processing the data and setting up the deep learning system}
-\label{step:rating-prediction}
-
-The first step is to set up the recurrent neural network infrastructure \cite{Tang2015} that predicts the ratings from the review text data. We will be reviewing the literature to learn about state-of-the-art deep learning systems that have been used to perform sentiment analysis as well as the prediction tasks that have been accomplished with the Yelp dataset. We will implement these systems and pick the one which gives the best prediction results. Our prediction will be based on either a binary classification problem (which we aggregate the 5-star ratings into 2 groups: positive and negative), or a 5-class classification problem(which we use the 5-star ratings output as it is). 
-
-\subsection{Explaining the deep learning system using functional methods}
-\label{step:rating-prediction-explanation}
-
-Several functional methods have been proposed in the literature to explain machine learning models. Some methods such as LIME \cite{Ribeiro2016} and QII \cite{Datta2017} are model agnostic. There are also methods that target deep learning models such as integrated ingredients \cite{Sundararajan2017}. We will implement and compare these functional methods and see which of these methods provide better explanations of the model. Based on the understanding that we gain of the explanation methods and the recurrent neural network, we will try to modify these methods to better comply with the specific structure of recurrent neural network and the specific problem of sentiment analysis.
-
-\subsection{Modifying the deep learning system for prediction of user gender}
-\label{step:gender-prediction}
-
-Given the flexible nature of recurrent neural networks, we will change the output layer from ratings to users' gender and adapt the system from step \ref{step:rating-prediction} into a system that predicts users' gender from review text. Since predicting gender is likely to require more text from each user, we will select the users that have written most reviews and aggregate them to see if the system can correctly predict their gender. If so, we will find out what amount of text is needed to correctly identify the gender.
-
-\subsection{Explaining the user gender prediction and addressing the privacy concern}
-\label{step:gender-prediction-explanation}
-
-If step \ref{step:gender-prediction} is successful, we will try to explain the system in the same fashion as in step \ref{step:rating-prediction-explanation}, but with user gender as output. Also, we will try to address this privacy concern by adding a noise to the review or limiting the number of words for the review text and see if that would make a difference in prediction accuracy. 
-
-\section{Deliverables}
-
-The main goal for our project is to build an interactive system such that given a particular review, or group of reviews, or the gender of a user, the system can explain why the deep learning algorithm gives such a prediction. We will provide a color code on the words in a review according to their importance in prediction. We will implement such a system for both rating prediction and gender prediction. We will complete steps \ref{step:rating-prediction} and \ref{step:rating-prediction-explanation} in the Approach section above for deliverable I, and steps \ref{step:gender-prediction} and \ref{step:gender-prediction-explanation} for deliverable II. 
-
-\section{Timeline}
+\bibliographystyle{abbrv}
+\bibliography{references}
 
 \end{document}
